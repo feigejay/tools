@@ -1,0 +1,153 @@
+/* 全局样式 */
+body {
+    padding-top: 70px;
+    background-color: #f8f9fa;
+}
+
+/* 导航栏样式 */
+.navbar {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    padding: 0.5rem 0;
+    height: 60px;
+}
+
+/* Logo区域样式 */
+.navbar-brand-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sub-title {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: -2px;
+}
+
+/* 搜索框样式 */
+.search-wrapper {
+    max-width: 800px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f5f6f7;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+}
+
+.search-icon {
+    color: #999;
+    margin-right: 10px;
+}
+
+.search-box .form-control {
+    border: none;
+    background: transparent;
+    padding: 0.375rem 0;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.search-box .form-control:focus {
+    box-shadow: none;
+}
+
+.search-box .form-control::placeholder {
+    color: #999;
+}
+
+/* 按钮样式 */
+.btn-share {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 0 15px;
+    font-size: 1rem;
+}
+
+.btn-browser-extension {
+    background-color: #f8e4d8;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #333;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.btn-more {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 0 10px;
+    font-size: 1.1rem;
+}
+
+/* 卡片样式 */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: white;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 图标样式 */
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 24px;
+}
+
+/* 卡片内容样式 */
+.card-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .icon-wrapper {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .card-text {
+        font-size: 0.85rem;
+    }
+} 
