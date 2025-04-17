@@ -4,190 +4,495 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能工具导航</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="styles.css" rel="stylesheet">
+    <!-- 引入CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- 固定导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-tools text-primary"></i> 智能工具导航
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#all">全部</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#rpa">RPA专区</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#personal">个人介绍</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#image">图片工具</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#pdf">PDF转换工具</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#data">数据换算工具</a>
-                    </li>
-                </ul>
+    <!-- 固定顶部导航栏 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <a href="#" class="logo">
+                    <i class="fas fa-tools"></i>
+                    <span>智能工具导航</span>
+                </a>
+                <span class="subtitle">免费在线工具集合</span>
             </div>
+
+            <div class="search-section">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索工具..." id="search-input">
+                    <button class="search-button">搜索</button>
+                </div>
+            </div>
+
+            <div class="language-section">
+                <div class="language-options">
+                    <a href="#" class="active">简体中文</a>
+                    <a href="#">繁體中文</a>
+                    <a href="#">English</a>
+                    <a href="#" class="reset-btn">🔄 重置</a>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </nav>
+    </header>
+
+    <!-- 搜索结果提示区域 -->
+    <div class="search-results-container" id="search-results">
+        <div class="search-results-header">
+            <h2>"<span id="search-keyword"></span>" 的搜索结果</h2>
+            <button class="clear-search" id="clear-search">清除搜索</button>
+        </div>
+        
+        <div class="no-results-message" id="no-results">
+            <p>没有找到与 "<span class="keyword"></span>" 相关的工具</p>
+            <p>请尝试其他关键词，或者查看以下推荐工具：</p>
+            <ul>
+                <li>检查关键词拼写</li>
+                <li>使用更通用的关键词</li>
+                <li>尝试使用工具分类查找</li>
+            </ul>
+        </div>
+        
+        <div class="loading-message" id="loading-tools">
+            <p>加载工具数据中...</p>
+        </div>
+    </div>
 
     <!-- 主体内容 -->
-    <div class="container mt-5 pt-5">
-        <div class="row g-4">
-            <!-- 第一行 -->
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-primary">
-                            <i class="fas fa-th-large text-white"></i>
+    <main class="main-container">
+        <!-- 侧边分类菜单 -->
+        <aside class="category-sidebar" id="category-sidebar">
+            <nav class="category-nav">
+                <ul class="category-list">
+                    <li class="category-item active">
+                        <a href="#all">
+                            <i class="fas fa-th-large"></i>
+                            <span>全部工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#recent">
+                            <i class="fas fa-history"></i>
+                            <span>最近更新</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#calc">
+                            <i class="fas fa-calculator"></i>
+                            <span>计算工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#convert">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>转换工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#encrypt">
+                            <i class="fas fa-lock"></i>
+                            <span>加密解密</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#life">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>生活工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#develop">
+                            <i class="fas fa-code"></i>
+                            <span>开发工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#text">
+                            <i class="fas fa-font"></i>
+                            <span>文本工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#image">
+                            <i class="fas fa-image"></i>
+                            <span>图像工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#format">
+                            <i class="fas fa-indent"></i>
+                            <span>格式化工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#query">
+                            <i class="fas fa-search"></i>
+                            <span>查询工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#entertainment">
+                            <i class="fas fa-gamepad"></i>
+                            <span>娱乐工具</span>
+                        </a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#health">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>健康工具</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 工具内容区域 -->
+        <section class="tools-content">
+            <!-- 统计信息 -->
+            <div class="tools-stats">
+                <div class="stats-text">共收录 <span class="highlight">100+</span> 款工具</div>
+                <div class="stats-text">被使用 <span class="highlight">666,666,666+</span> 次</div>
+            </div>
+
+            <!-- 热门工具区域 -->
+            <div class="hot-tools-section">
+                <h2 class="section-title">
+                    <i class="fas fa-fire"></i>
+                    热门工具
+                </h2>
+                <div class="tools-grid">
+                    <a href="image/image-compressor.html" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-image"></i>
                         </div>
-                        <h5 class="card-title mt-3">全部</h5>
-                        <p class="card-text">浏览所有智能工具</p>
+                        <div class="tool-info">
+                            <h3 class="tool-title">图片压缩</h3>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">PDF转换器</h3>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">文本工具箱</h3>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-file-code"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">JSON在线格式化工具</h3>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">敏感词检测工具</h3>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">安全密码生成器</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 计算工具区域 -->
+            <div class="tools-section" id="calc">
+                <h2 class="section-title">计算工具</h2>
+                <div class="tools-grid">
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">贷款分期计算器</h3>
+                            <p class="tool-desc">免费计算等额本息和等额本金还款方式，轻松了解还款详情</p>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">多功能进制转换器</h3>
+                            <p class="tool-desc">在不同进制间转换数字</p>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">亲戚称呼计算器</h3>
+                            <p class="tool-desc">计算复杂的亲戚关系称呼</p>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">年龄计算器</h3>
+                            <p class="tool-desc">计算出生日期到现在的准确年龄</p>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">日期计算器</h3>
+                            <p class="tool-desc">计算两个日期之间的差异</p>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">法定年龄退休计算器</h3>
+                            <p class="tool-desc">计算法定退休年龄和时间</p>
+                        </div>
+                    </a>
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">数据大小转换器</h3>
+                            <p class="tool-desc">在不同数据单位间进行换算</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 必保留栏目 -->
+            <div class="tools-section" id="rpa">
+                <h2 class="section-title">RPA专区</h2>
+                <div class="tools-grid">
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">RPA专区</h3>
+                            <p class="tool-desc">自动化流程工具</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tools-section" id="education">
+                <h2 class="section-title">教育工具</h2>
+                <div class="tools-grid">
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">教育工具</h3>
+                            <p class="tool-desc">学习辅助工具</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tools-section" id="video">
+                <h2 class="section-title">视频工具</h2>
+                <div class="tools-grid">
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">视频工具</h3>
+                            <p class="tool-desc">视频处理工具</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tools-section" id="browser">
+                <h2 class="section-title">浏览器插件</h2>
+                <div class="tools-grid">
+                    <a href="#" class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">浏览器插件</h3>
+                            <p class="tool-desc">浏览器扩展工具</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 站长介绍区域 -->
+            <div class="creator-section">
+                <h2 class="section-title">站长介绍</h2>
+                <div class="creator-profile">
+                    <div class="creator-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="creator-info">
+                        <h3 class="creator-name">码农飞哥</h3>
+                        <p class="creator-desc">热爱编程和互联网技术的极客，致力于开发实用工具帮助更多人。</p>
+                        <div class="creator-links">
+                            <a href="#" class="creator-link">个人博客</a>
+                            <a href="#" class="creator-link">知乎</a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-success">
-                            <i class="fas fa-robot text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">RPA专区</h5>
-                        <p class="card-text">自动化流程工具</p>
-                    </div>
+        </section>
+    </main>
+
+    <!-- 底部信息 -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <h3>关于我们</h3>
+                <p>智能工具导航是一个提供各类实用在线工具的综合性平台，致力于为用户提供便捷、高效的在线工具服务。</p>
+            </div>
+            <div class="footer-right">
+                <p>© 2025 智能工具导航 版权所有</p>
+                <div class="footer-links">
+                    <a href="#" class="theme-toggle" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                        <span>切换主题</span>
+                    </a>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-info">
-                            <i class="fas fa-user text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">个人介绍</h5>
-                        <p class="card-text">关于我的信息</p>
-                    </div>
-                </div>
+        </div>
+    </footer>
+    
+    <!-- 联系方式弹窗 -->
+    <div class="contact-modal" id="contact-modal">
+        <div class="contact-modal-content">
+            <div class="contact-modal-header">
+                <h3>微信二维码</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
             </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-warning">
-                            <i class="fas fa-image text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">图片工具</h5>
-                        <p class="card-text">图片处理与编辑</p>
-                    </div>
-                </div>
-            </div>
-            <!-- 第二行 -->
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-danger">
-                            <i class="fas fa-file-pdf text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">PDF转换工具</h5>
-                        <p class="card-text">PDF文件处理工具</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-secondary">
-                            <i class="fas fa-calculator text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">数据换算工具</h5>
-                        <p class="card-text">单位换算与计算</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-primary">
-                            <i class="fas fa-gamepad text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">生活娱乐工具</h5>
-                        <p class="card-text">日常娱乐助手</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-success">
-                            <i class="fas fa-graduation-cap text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">教育工具</h5>
-                        <p class="card-text">学习辅助工具</p>
-                    </div>
-                </div>
-            </div>
-            <!-- 第三行 -->
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-info">
-                            <i class="fas fa-font text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">文本工具</h5>
-                        <p class="card-text">文本处理与转换</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-warning">
-                            <i class="fas fa-code text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">开发工具</h5>
-                        <p class="card-text">编程开发助手</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-danger">
-                            <i class="fas fa-video text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">视频工具</h5>
-                        <p class="card-text">视频处理工具</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="icon-wrapper bg-secondary">
-                            <i class="fas fa-puzzle-piece text-white"></i>
-                        </div>
-                        <h5 class="card-title mt-3">浏览器插件</h5>
-                        <p class="card-text">浏览器扩展工具</p>
-                    </div>
+            <div class="contact-modal-body">
+                <div class="qrcode-container">
+                    <div class="qrcode-placeholder"></div>
+                    <p>扫码咨询/合作</p>
+                    <p class="qrcode-account">2809641033</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript -->
+    <script>
+        // 显示/隐藏搜索结果
+        function toggleSearchResults(show, keyword = '') {
+            const searchResults = document.getElementById('search-results');
+            const noResults = document.getElementById('no-results');
+            const keywordSpans = document.querySelectorAll('.keyword');
+            const searchKeyword = document.getElementById('search-keyword');
+            
+            if (show) {
+                searchResults.classList.add('active');
+                if (keyword.trim() === '') {
+                    noResults.style.display = 'none';
+                } else {
+                    noResults.style.display = 'block';
+                    keywordSpans.forEach(span => span.textContent = keyword);
+                    searchKeyword.textContent = keyword;
+                }
+            } else {
+                searchResults.classList.remove('active');
+            }
+        }
+        
+        // 搜索功能
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const toolCards = document.querySelectorAll('.tool-card');
+            
+            let foundResults = false;
+            
+            toolCards.forEach(card => {
+                const title = card.querySelector('.tool-title').textContent.toLowerCase();
+                const desc = card.querySelector('.tool-desc')?.textContent.toLowerCase() || '';
+                
+                if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                    foundResults = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            toggleSearchResults(searchTerm.trim() !== '' && !foundResults, searchTerm);
+        });
+        
+        // 清除搜索
+        document.getElementById('clear-search').addEventListener('click', function() {
+            document.getElementById('search-input').value = '';
+            const toolCards = document.querySelectorAll('.tool-card');
+            toolCards.forEach(card => {
+                card.style.display = 'flex';
+            });
+            toggleSearchResults(false);
+        });
+        
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('category-sidebar').classList.toggle('active');
+        });
+        
+        // 暗色模式切换
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化隐藏搜索结果
+            toggleSearchResults(false);
+            
+            // 分类菜单项点击事件
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
 </body>
 </html> 
