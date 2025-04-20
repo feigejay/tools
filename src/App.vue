@@ -163,12 +163,12 @@ body {
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .app-container {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
@@ -180,8 +180,15 @@ html, body {
   display: flex;
   flex: 1;
   padding-top: var(--header-height);
-  height: calc(100vh - var(--footer-height));
-  overflow: hidden;
+  min-height: calc(100vh - var(--footer-height));
+  overflow: auto;
+  padding-left: var(--sidebar-width);
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding-left: 0;
+  }
 }
 
 .fade-enter-active,

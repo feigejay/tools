@@ -21,7 +21,7 @@
 
 <script setup>
 import { ref, onMounted, watch, inject } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { 
   Menu as MenuIcon,
@@ -45,6 +45,7 @@ import {
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const activeCategory = ref('all');
 const isMobileActive = inject('isMobileMenuOpen', ref(false));
 
@@ -157,6 +158,27 @@ const categories = ref([
 // 设置激活分类
 const setActiveCategory = (categoryId) => {
   activeCategory.value = categoryId;
+  
+  if (categoryId === 'all') {
+    // 跳转到首页
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (categoryId === 'recent') {
+    // 跳转到最近使用工具区域
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    // 跳转到对应分类区域
+    if (route.path === '/') {
+      // 如果在首页，滚动到对应分类
+      const categoryElement = document.getElementById(categoryId);
+      if (categoryElement) {
+        categoryElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // 如果不在首页，先导航到首页，然后使用query参数标记要滚动的分类
+      router.push({ path: '/', query: { category: categoryId } });
+    }
+  }
+  
   if (window.innerWidth <= 768) {
     isMobileActive.value = false;
   }
@@ -194,6 +216,12 @@ onMounted(() => {
   overflow-y: auto;
   transition: all var(--transition-time);
   padding-top: var(--spacing-lg);
+  position: fixed;
+  top: var(--header-height);
+  bottom: var(--footer-height);
+  left: 0;
+  z-index: 10;
+  overflow-x: hidden;
 }
 
 .category-nav {
@@ -247,6 +275,7 @@ onMounted(() => {
     box-shadow: var(--box-shadow);
     width: 80%;
     max-width: 300px;
+    bottom: 0;
   }
   
   .app-sidebar.active {

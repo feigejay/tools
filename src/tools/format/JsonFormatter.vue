@@ -1,86 +1,106 @@
 <template>
-  <div class="json-formatter">
-    <el-card class="tool-card">
-      <template #header>
-        <div class="card-header">
-          <h2>JSON格式化工具</h2>
-        </div>
-      </template>
-      
-      <el-tabs v-model="activeTab" class="tool-tabs">
-        <el-tab-pane label="格式化" name="format">
-          <div class="editor-container">
-            <div class="editor-actions">
-              <div class="left-actions">
-                <el-button @click="clearInput">清空</el-button>
-                <el-button @click="pasteFromClipboard">从剪贴板粘贴</el-button>
-                <el-button @click="loadSampleData">加载示例</el-button>
+  <tool-container>
+    <div class="json-formatter">
+      <div class="tool-content">
+        <el-tabs v-model="activeTab" class="tool-tabs">
+          <el-tab-pane label="格式化" name="format">
+            <div class="integrated-layout">
+              <!-- 左侧输入区 -->
+              <div class="left-panel">
+                <div class="input-section">
+                  <div class="section-title">
+                    输入JSON
+                    <div class="input-actions">
+                      <el-button size="small" @click="pasteFromClipboard">粘贴</el-button>
+                      <el-button size="small" @click="loadSampleData">示例</el-button>
+                      <el-button size="small" @click="clearInput">清空</el-button>
+                    </div>
+                  </div>
+                  
+                  <el-input
+                    v-model="inputJson"
+                    type="textarea"
+                    :rows="10"
+                    placeholder="请输入或粘贴JSON文本，自动格式化"
+                    class="json-input"
+                    :class="{ 'invalid-json': !isValidJson && inputJson }"
+                    @focus="autoFormatOnFocus"
+                  ></el-input>
+                  
+                  <div class="format-options">
+                    <div class="option-row">
+                      <span class="option-label-compact">缩进:</span>
+                      <el-select v-model="indentSize" size="small" class="format-select-compact">
+                        <el-option label="2 空格" :value="2"></el-option>
+                        <el-option label="4 空格" :value="4"></el-option>
+                        <el-option label="8 空格" :value="8"></el-option>
+                      </el-select>
+                    </div>
+                    
+                    <div class="actions-row">
+                      <el-button type="primary" size="small" @click="formatJson" :disabled="!inputJson.trim()">格式化</el-button>
+                      <el-button type="success" size="small" @click="copyToClipboard" :disabled="!formattedJson">复制结果</el-button>
+                    </div>
+                  </div>
+                  
+                  <!-- JSON状态信息 -->
+                  <div v-if="formattedJson && isValidJson" class="json-stats">
+                    <span class="stat-item-inline">
+                      <span class="stat-label">字符数:</span>
+                      <span class="stat-value">{{ inputJson.length }}</span>
+                    </span>
+                    
+                    <span class="stat-divider">|</span>
+                    
+                    <span class="stat-item-inline">
+                      <span class="stat-label">节点数:</span>
+                      <span class="stat-value">{{ countJsonNodes() }}</span>
+                    </span>
+                    
+                    <span class="stat-divider">|</span>
+                    
+                    <span class="stat-item-inline">
+                      <span class="stat-label">格式:</span>
+                      <span class="stat-value">有效</span>
+                    </span>
+                  </div>
+                  <div v-else-if="inputJson && !isValidJson" class="json-stats error">
+                    <span class="stat-error">JSON格式无效，请检查输入</span>
+                  </div>
+                </div>
               </div>
-              <div class="right-actions">
-                <el-button type="primary" @click="formatJson">格式化</el-button>
+              
+              <!-- 右侧结果区 -->
+              <div class="right-panel" ref="previewSection">
+                <div class="output-section">
+                  <div class="section-title">
+                    格式化结果
+                    <el-button type="primary" size="small" @click="copyToClipboard" :disabled="!formattedJson">复制</el-button>
+                  </div>
+                  
+                  <div class="output-container" ref="outputContainer">
+                    <pre class="json-output"><code>{{ formattedJson }}</code></pre>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <el-input
-              v-model="inputJson"
-              type="textarea"
-              :rows="10"
-              placeholder="请输入或粘贴JSON文本"
-              class="json-input"
-            ></el-input>
-            
-            <div class="spacing"></div>
-            
-            <div class="output-header">
-              <span>格式化结果</span>
-              <div class="output-actions">
-                <el-select v-model="indentSize" placeholder="缩进空格" style="width: 110px">
-                  <el-option label="2 空格" :value="2"></el-option>
-                  <el-option label="4 空格" :value="4"></el-option>
-                  <el-option label="8 空格" :value="8"></el-option>
-                </el-select>
-                <el-button type="primary" @click="copyToClipboard">复制结果</el-button>
+          </el-tab-pane>
+          
+          <el-tab-pane label="JSON编辑器" name="editor">
+            <div class="json-editor-container">
+              <div class="json-editor-wrapper" ref="jsonEditorContainer">
+                <!-- JsonEditor将在此处挂载 -->
+              </div>
+              <div class="editor-actions">
+                <el-button size="small" @click="getEditorJson">更新至文本区</el-button>
+                <el-button type="primary" size="small" @click="copyEditorJson">复制JSON</el-button>
               </div>
             </div>
-            
-            <div class="output-container" ref="outputContainer">
-              <pre class="json-output"><code>{{ formattedJson }}</code></pre>
-            </div>
-          </div>
-        </el-tab-pane>
-        
-        <el-tab-pane label="JSON编辑器" name="editor">
-          <div class="json-editor-container">
-            <div class="editor-info">
-              <el-alert
-                title="可视化JSON编辑器"
-                type="info"
-                description="拖拽重新排序，点击编辑值，右键显示更多选项"
-                :closable="false"
-                show-icon
-              />
-            </div>
-            <div class="json-editor-wrapper" ref="jsonEditorContainer">
-              <!-- JsonEditor将在此处挂载 -->
-            </div>
-            <div class="editor-actions mt-3">
-              <el-button @click="getEditorJson">获取JSON</el-button>
-              <el-button type="primary" @click="copyEditorJson">复制JSON</el-button>
-            </div>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-      
-      <div class="instruction">
-        <h3>使用说明</h3>
-        <ul>
-          <li><strong>格式化</strong> - 将无格式或压缩的JSON文本转换为易读的格式</li>
-          <li><strong>JSON编辑器</strong> - 可视化编辑JSON数据，支持添加、删除、修改节点</li>
-        </ul>
-        <p>温馨提示：处理大型JSON文件时可能需要稍等片刻</p>
+          </el-tab-pane>
+        </el-tabs>
       </div>
-    </el-card>
-  </div>
+    </div>
+  </tool-container>
 </template>
 
 <script setup>
@@ -88,6 +108,7 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.min.css';
+import ToolContainer from '../../components/ToolContainer.vue';
 
 // 响应式数据
 const inputJson = ref('');
@@ -96,9 +117,57 @@ const indentSize = ref(2);
 const activeTab = ref('format');
 const outputContainer = ref(null);
 const jsonEditorContainer = ref(null);
+const isValidJson = ref(true);
+const debounceTimeout = ref(null);
+const previewSection = ref(null);
 
 // JSONEditor实例
 let jsonEditor = null;
+
+// 自动格式化触发条件之一：获得焦点且有内容时
+const autoFormatOnFocus = () => {
+  if (inputJson.value.trim() && !formattedJson.value) {
+    formatJson();
+  }
+};
+
+// 监听输入变化，自动格式化
+watch(inputJson, (newValue) => {
+  // 如果为空，清空格式化结果
+  if (!newValue.trim()) {
+    formattedJson.value = '';
+    isValidJson.value = true;
+    return;
+  }
+  
+  // 防抖处理，避免连续输入时频繁格式化
+  clearTimeout(debounceTimeout.value);
+  debounceTimeout.value = setTimeout(() => {
+    try {
+      const jsonObj = JSON.parse(newValue);
+      formattedJson.value = JSON.stringify(jsonObj, null, indentSize.value);
+      isValidJson.value = true;
+      
+      // 滚动到预览区
+      scrollToPreview();
+    } catch (e) {
+      // 不显示错误提示，只标记无效状态
+      isValidJson.value = false;
+    }
+  }, 300); // 缩短防抖时间，让响应更快
+});
+
+// 监听缩进大小变化，重新格式化
+watch(indentSize, () => {
+  if (formattedJson.value) {
+    try {
+      const jsonObj = JSON.parse(inputJson.value);
+      formattedJson.value = JSON.stringify(jsonObj, null, indentSize.value);
+    } catch (e) {
+      // 忽略错误
+    }
+  }
+});
 
 // 监听标签页变化
 watch(activeTab, (newVal) => {
@@ -113,6 +182,49 @@ watch(activeTab, (newVal) => {
     }
   }
 });
+
+// 滚动到预览区域
+const scrollToPreview = () => {
+  setTimeout(() => {
+    if (previewSection.value && window.innerWidth < 992) {
+      previewSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 300);
+};
+
+// 统计JSON节点数量
+const countJsonNodes = () => {
+  try {
+    if (!inputJson.value) return 0;
+    const json = JSON.parse(inputJson.value);
+    
+    // 递归计算节点数
+    const countNodes = (obj) => {
+      if (obj === null) return 1;
+      if (typeof obj !== 'object') return 1;
+      
+      let count = 1; // 当前节点
+      
+      if (Array.isArray(obj)) {
+        // 数组
+        obj.forEach(item => {
+          count += countNodes(item);
+        });
+      } else {
+        // 对象
+        Object.keys(obj).forEach(key => {
+          count += countNodes(obj[key]);
+        });
+      }
+      
+      return count;
+    };
+    
+    return countNodes(json);
+  } catch (e) {
+    return 0;
+  }
+};
 
 // 初始化JSON编辑器
 onMounted(() => {
@@ -132,6 +244,11 @@ onMounted(() => {
     
     jsonEditor = new JSONEditor(jsonEditorContainer.value, options);
     jsonEditor.set({});
+    
+    // 自动加载示例数据，便于用户快速了解工具
+    if (!inputJson.value) {
+      loadSampleData();
+    }
   }
 });
 
@@ -142,7 +259,7 @@ onBeforeUnmount(() => {
   }
 });
 
-// 格式化JSON
+// 手动格式化JSON
 const formatJson = () => {
   if (!inputJson.value.trim()) {
     ElMessage.warning('请先输入JSON文本');
@@ -152,8 +269,10 @@ const formatJson = () => {
   try {
     const jsonObj = JSON.parse(inputJson.value);
     formattedJson.value = JSON.stringify(jsonObj, null, indentSize.value);
-    ElMessage.success('格式化成功');
+    isValidJson.value = true;
+    scrollToPreview();
   } catch (e) {
+    isValidJson.value = false;
     ElMessage.error('无效的JSON格式: ' + e.message);
   }
 };
@@ -162,6 +281,7 @@ const formatJson = () => {
 const clearInput = () => {
   inputJson.value = '';
   formattedJson.value = '';
+  isValidJson.value = true;
 };
 
 // 从剪贴板粘贴
@@ -170,6 +290,9 @@ const pasteFromClipboard = async () => {
     const text = await navigator.clipboard.readText();
     inputJson.value = text;
     ElMessage.success('已从剪贴板粘贴');
+    
+    // 自动格式化
+    formatJson();
   } catch (e) {
     ElMessage.error('无法访问剪贴板: ' + e.message);
   }
@@ -196,6 +319,7 @@ const loadSampleData = () => {
   ],
   "metadata": null
 }`;
+  // 自动格式化
   formatJson();
 };
 
@@ -246,108 +370,230 @@ const copyEditorJson = async () => {
 
 <style scoped>
 .json-formatter {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.tool-card {
-  margin-bottom: 20px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  width: 100%;
 }
 
 .tool-tabs {
-  margin-top: 10px;
+  margin-top: 0;
 }
 
-.editor-container {
-  margin-top: 20px;
-}
-
-.editor-actions {
+.integrated-layout {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: var(--spacing-md);
+  width: 100%;
+  height: calc(100vh - 180px);
+  min-height: 400px;
+  max-height: 600px;
 }
 
-.left-actions, .right-actions {
+.left-panel {
+  width: 320px;
+  flex-shrink: 0;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
 }
 
-.spacing {
-  height: 20px;
+.right-panel {
+  flex: 1;
+  min-width: 0;
 }
 
-.output-header {
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #303133;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
 }
 
-.output-actions {
+.input-section {
+  flex: 1;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  width: 100%;
+}
+
+.input-actions {
+  display: flex;
+  gap: 5px;
 }
 
 .json-input {
+  flex: 1;
   font-family: monospace;
+  font-size: 14px;
+}
+
+.invalid-json .el-textarea__inner {
+  border-color: #f56c6c;
+  background-color: #fff0f0;
+}
+
+.format-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f8f9ff;
+  border-radius: 4px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.option-label-compact {
+  font-size: 13px;
+  color: #303133;
+  font-weight: 500;
+  min-width: 44px;
+}
+
+.format-select-compact {
+  width: 100px;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.json-stats {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  font-size: 12px;
+  margin-top: 8px;
+  background-color: #f0f9eb;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.json-stats.error {
+  background-color: #fff0f0;
+}
+
+.stat-item-inline {
+  display: flex;
+  gap: 3px;
+}
+
+.stat-divider {
+  color: #c0c4cc;
+  margin: 0 4px;
+}
+
+.stat-label {
+  color: #606266;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #67c23a;
+}
+
+.stat-error {
+  color: #f56c6c;
+  font-weight: 500;
+}
+
+.output-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .output-container {
-  background-color: #f5f7fa;
-  border: 1px solid #e4e7ed;
+  flex: 1;
+  background-color: #f9f9f9;
+  border: 1px solid #dcdfe6;
   border-radius: 4px;
   padding: 10px;
-  max-height: 400px;
   overflow: auto;
+  position: relative;
+  height: calc(100% - 35px);
 }
 
 .json-output {
   margin: 0;
   font-family: monospace;
+  font-size: 14px;
   white-space: pre-wrap;
 }
 
 .json-editor-container {
-  margin-top: 20px;
-}
-
-.json-editor-wrapper {
-  height: 500px;
-  margin-top: 15px;
+  height: calc(100vh - 180px);
+  min-height: 400px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-info {
-  margin-bottom: 15px;
-}
-
-.mt-3 {
-  margin-top: 15px;
-}
-
-.instruction {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-}
-
-.instruction h3 {
-  margin-top: 0;
   margin-bottom: 10px;
 }
 
-.instruction ul {
-  padding-left: 20px;
+.json-editor-wrapper {
+  flex: 1;
+  margin-bottom: 10px;
 }
 
-.instruction li {
-  margin-bottom: 8px;
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 992px) {
+  .integrated-layout {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+  }
+  
+  .left-panel,
+  .right-panel {
+    width: 100%;
+  }
+  
+  .input-section {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .json-input {
+    height: 180px;
+  }
+  
+  .output-container {
+    height: 180px;
+  }
+  
+  .json-editor-container {
+    height: auto;
+  }
+  
+  .json-editor-wrapper {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .json-input,
+  .output-container {
+    height: 150px;
+  }
+  
+  .json-editor-wrapper {
+    height: 300px;
+  }
 }
 </style> 

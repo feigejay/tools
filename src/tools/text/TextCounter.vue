@@ -1,115 +1,151 @@
 <template>
-  <div class="text-counter">
-    <el-card class="tool-card">
-      <template #header>
-        <div class="card-header">
-          <h2>文本计数器</h2>
+  <tool-container>
+    <div class="text-counter">
+      <div class="tool-content">
+        <div class="integrated-layout">
+          <!-- 左侧输入面板 -->
+          <div class="left-panel">
+            <div class="section-title">
+              文本输入
+              <div class="input-actions">
+                <el-button size="small" @click="pasteFromClipboard">粘贴</el-button>
+                <el-button size="small" @click="clearText">清空</el-button>
+              </div>
+            </div>
+            
+            <el-input
+              v-model="text"
+              type="textarea"
+              :rows="14"
+              placeholder="请输入或粘贴要计数的文本"
+              @input="calculateStats"
+              class="text-input"
+            ></el-input>
+            
+            <!-- 基础统计信息 - 紧凑展示 -->
+            <div class="compact-stats">
+              <span class="stat-item-inline">
+                <span class="stat-label">字符:</span>
+                <span class="stat-value">{{ stats.characters }}</span>
+              </span>
+              
+              <span class="stat-divider">|</span>
+              
+              <span class="stat-item-inline">
+                <span class="stat-label">单词:</span>
+                <span class="stat-value">{{ stats.words }}</span>
+              </span>
+              
+              <span class="stat-divider">|</span>
+              
+              <span class="stat-item-inline">
+                <span class="stat-label">行数:</span>
+                <span class="stat-value">{{ stats.lines }}</span>
+              </span>
+              
+              <span class="stat-divider">|</span>
+              
+              <span class="stat-item-inline">
+                <span class="stat-label">段落:</span>
+                <span class="stat-value">{{ stats.paragraphs }}</span>
+              </span>
+            </div>
+          </div>
+          
+          <!-- 右侧统计面板 -->
+          <div class="right-panel">
+            <div class="section-title">详细统计</div>
+            
+            <div class="stats-container">
+              <!-- 字符分类统计 -->
+              <div class="stats-section">
+                <div class="stats-section-title">字符分类</div>
+                <div class="stats-grid">
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">文</span>
+                      <span class="detail-stat-label">中文字符</span>
+                    </div>
+                    <div class="detail-stat-value">{{ stats.chineseCharacters }}</div>
+                  </div>
+                  
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">Aa</span>
+                      <span class="detail-stat-label">英文字符</span>
+                    </div>
+                    <div class="detail-stat-value">{{ stats.englishCharacters }}</div>
+                  </div>
+                  
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">123</span>
+                      <span class="detail-stat-label">数字</span>
+                    </div>
+                    <div class="detail-stat-value">{{ stats.numbers }}</div>
+                  </div>
+                  
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">,.!</span>
+                      <span class="detail-stat-label">标点符号</span>
+                    </div>
+                    <div class="detail-stat-value">{{ stats.punctuation }}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 空格和其他统计 -->
+              <div class="stats-section">
+                <div class="stats-section-title">其他统计</div>
+                <div class="stats-grid">
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">□</span>
+                      <span class="detail-stat-label">空格</span>
+                    </div>
+                    <div class="detail-stat-value">{{ stats.spaces }}</div>
+                  </div>
+                  
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">Σ</span>
+                      <span class="detail-stat-label">不含空格字符</span>
+                    </div>
+                    <div class="detail-stat-value">{{ stats.charactersNoSpaces }}</div>
+                  </div>
+                  
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">%</span>
+                      <span class="detail-stat-label">中文比例</span>
+                    </div>
+                    <div class="detail-stat-value">{{ calculateChinesePercentage() }}%</div>
+                  </div>
+                  
+                  <div class="detail-stat-item">
+                    <div class="detail-stat-header">
+                      <span class="detail-stat-icon">≈</span>
+                      <span class="detail-stat-label">平均行长</span>
+                    </div>
+                    <div class="detail-stat-value">{{ calculateAverageLineLength() }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </template>
-      
-      <div class="counter-input">
-        <el-input
-          v-model="text"
-          type="textarea"
-          :rows="10"
-          placeholder="请输入或粘贴要计数的文本"
-          @input="calculateStats"
-        ></el-input>
-        <div class="input-actions">
-          <el-button @click="clearText">清空</el-button>
-          <el-button @click="pasteFromClipboard">从剪贴板粘贴</el-button>
-        </div>
       </div>
-      
-      <el-divider></el-divider>
-      
-      <div class="stats">
-        <el-row :gutter="20">
-          <el-col :xs="12" :sm="8" :md="6">
-            <el-card shadow="hover" class="stat-card">
-              <template #header>
-                <div class="stat-header">字符数</div>
-              </template>
-              <div class="stat-value">{{ stats.characters }}</div>
-            </el-card>
-          </el-col>
-          
-          <el-col :xs="12" :sm="8" :md="6">
-            <el-card shadow="hover" class="stat-card">
-              <template #header>
-                <div class="stat-header">单词数</div>
-              </template>
-              <div class="stat-value">{{ stats.words }}</div>
-            </el-card>
-          </el-col>
-          
-          <el-col :xs="12" :sm="8" :md="6">
-            <el-card shadow="hover" class="stat-card">
-              <template #header>
-                <div class="stat-header">行数</div>
-              </template>
-              <div class="stat-value">{{ stats.lines }}</div>
-            </el-card>
-          </el-col>
-          
-          <el-col :xs="12" :sm="8" :md="6">
-            <el-card shadow="hover" class="stat-card">
-              <template #header>
-                <div class="stat-header">段落数</div>
-              </template>
-              <div class="stat-value">{{ stats.paragraphs }}</div>
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
-      
-      <el-divider></el-divider>
-      
-      <div class="advanced-stats">
-        <h3>高级统计</h3>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <div class="stat-item">
-              <span class="stat-label">不计空格的字符数：</span>
-              <span class="stat-num">{{ stats.charactersNoSpaces }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">中文字符数：</span>
-              <span class="stat-num">{{ stats.chineseCharacters }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">英文字符数：</span>
-              <span class="stat-num">{{ stats.englishCharacters }}</span>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="stat-item">
-              <span class="stat-label">数字个数：</span>
-              <span class="stat-num">{{ stats.numbers }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">标点符号数：</span>
-              <span class="stat-num">{{ stats.punctuation }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">空格数：</span>
-              <span class="stat-num">{{ stats.spaces }}</span>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
-      
-      <div class="instruction">
-        <h3>使用说明</h3>
-        <p>在文本框中输入或粘贴任何文本，工具将自动计算统计信息。统计数据会随着文本内容的变化而实时更新。</p>
-      </div>
-    </el-card>
-  </div>
+    </div>
+  </tool-container>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { ElMessage } from 'element-plus';
+import { Document } from '@element-plus/icons-vue';
+import ToolContainer from '../../components/ToolContainer.vue';
+import ToolHeader from '../../components/ToolHeader.vue';
 
 const text = ref('');
 const stats = reactive({
@@ -144,6 +180,18 @@ const calculateStats = () => {
   stats.spaces = (content.match(/\s/g) || []).length;
 };
 
+// 计算中文字符百分比
+const calculateChinesePercentage = () => {
+  if (stats.characters === 0) return 0;
+  return ((stats.chineseCharacters / stats.characters) * 100).toFixed(1);
+};
+
+// 计算平均行长度
+const calculateAverageLineLength = () => {
+  if (stats.lines === 0) return 0;
+  return (stats.characters / stats.lines).toFixed(1);
+};
+
 // 清空文本
 const clearText = () => {
   text.value = '';
@@ -168,92 +216,168 @@ calculateStats();
 
 <style scoped>
 .text-counter {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
 }
 
-.tool-card {
-  margin-bottom: 20px;
+.integrated-layout {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
 }
 
-.card-header {
+.left-panel {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #303133;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.counter-input {
-  margin-bottom: 20px;
-}
-
 .input-actions {
-  margin-top: 10px;
   display: flex;
-  gap: 10px;
+  gap: 5px;
 }
 
-.stats {
-  margin: 20px 0;
+.text-input {
+  flex: 1;
+  font-family: monospace;
+  font-size: 14px;
 }
 
-.stat-card {
-  text-align: center;
-  margin-bottom: 20px;
-  transition: transform 0.3s;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-}
-
-.stat-header {
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #409EFF;
-  padding: 10px 0;
-}
-
-.advanced-stats {
-  margin: 20px 0;
-}
-
-.advanced-stats h3 {
-  margin-bottom: 15px;
-}
-
-.stat-item {
-  margin-bottom: 10px;
-  padding: 5px;
+.compact-stats {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  font-size: 12px;
+  margin-top: 8px;
+  background-color: #f0f9eb;
   border-radius: 4px;
+  padding: 6px 8px;
 }
 
-.stat-item:hover {
-  background-color: #f5f7fa;
+.stat-item-inline {
+  display: flex;
+  gap: 3px;
+}
+
+.stat-divider {
+  color: #c0c4cc;
+  margin: 0 4px;
 }
 
 .stat-label {
+  color: #606266;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #67c23a;
+}
+
+.stats-container {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #ebeef5;
+}
+
+.stats-section {
+  padding: 12px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.stats-section:last-child {
+  border-bottom: none;
+}
+
+.stats-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.detail-stat-item {
+  background-color: #f8f9ff;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.detail-stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.detail-stat-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  background-color: #ecf5ff;
+  color: #409EFF;
+  border-radius: 4px;
+  font-size: 12px;
   font-weight: bold;
 }
 
-.stat-num {
+.detail-stat-label {
+  font-size: 13px;
+  color: #606266;
+}
+
+.detail-stat-value {
+  font-size: 18px;
+  font-weight: 600;
   color: #409EFF;
 }
 
-.instruction {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+@media (max-width: 992px) {
+  .integrated-layout {
+    flex-direction: column;
+  }
+  
+  .left-panel,
+  .right-panel {
+    width: 100%;
+  }
+  
+  .left-panel {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .text-input {
+    height: 180px;
+  }
 }
 
-.instruction h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style> 

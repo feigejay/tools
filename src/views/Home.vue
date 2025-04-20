@@ -68,12 +68,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import ToolCard from '../components/ToolCard.vue';
 import { Star, Picture, Document, Setting, Edit, Link, User } from '@element-plus/icons-vue';
 
 const { t } = useI18n();
+const route = useRoute();
 
 // 热门工具列表
 const hotTools = ref([
@@ -173,6 +175,20 @@ const categories = ref([
     ]
   }
 ]);
+
+// 处理URL参数中的分类
+onMounted(() => {
+  // 检查URL参数中是否有category
+  setTimeout(() => {
+    const category = route.query.category;
+    if (category) {
+      const categoryElement = document.getElementById(category);
+      if (categoryElement) {
+        categoryElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, 300); // 延迟一点时间，确保DOM已经渲染完毕
+});
 </script>
 
 <style scoped>
